@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../services/api';
 
 const AuthContext = createContext();
 
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         username: email,
         password: password,
       });
@@ -66,7 +67,6 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // ✅ Enquanto restaura sessão, mostra loading
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">

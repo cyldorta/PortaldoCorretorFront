@@ -5,7 +5,7 @@ import { Search, Eye, Trash2, X, User, Phone, Mail, MessageSquare, Building2, Ed
 import Toast from '../../components/common/Toast';
 import { useAuth } from '../../context/AuthContext';
 
-const API = 'http://localhost:8080';
+const API = 'https://fixed-mari-dev-master-0c3ca107.koyeb.app';
 
 function logAxiosError(prefix, err) {
   console.error(prefix, err);
@@ -27,18 +27,18 @@ const STATUS_LABELS = {
 const inputCls = "w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 disabled:opacity-50 transition-all";
 
 export default function CorretorLeads() {
-  const navigate    = useNavigate();
-  const { user }    = useAuth();
+  const navigate  = useNavigate();
+  const { user }  = useAuth();
 
-  const [leads, setLeads]               = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [searchTerm, setSearchTerm]     = useState('');
-  const [filtroStatus, setFiltroStatus] = useState('TODOS');
-  const [toast, setToast]               = useState(null);
-  const [viewLead, setViewLead]         = useState(null);
-  const [editLead, setEditLead]         = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [deletingId, setDeletingId]     = useState(null);
+  const [leads, setLeads]                   = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [searchTerm, setSearchTerm]         = useState('');
+  const [filtroStatus, setFiltroStatus]     = useState('TODOS');
+  const [toast, setToast]                   = useState(null);
+  const [viewLead, setViewLead]             = useState(null);
+  const [editLead, setEditLead]             = useState(null);
+  const [deleteConfirm, setDeleteConfirm]   = useState(null);
+  const [deletingId, setDeletingId]         = useState(null);
 
   const showToast = (message, type = 'success') => setToast({ message, type });
 
@@ -72,13 +72,18 @@ export default function CorretorLeads() {
   const handleDelete = async (id) => {
     try {
       setDeletingId(id);
-      await axios.delete(`${API}/api/leads/${id}`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      await axios.delete(`${API}/api/leads/${id}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
       setDeleteConfirm(null);
       showToast('Lead deletado com sucesso!');
       fetchLeads();
     } catch (err) {
       logAxiosError('❌ Erro ao deletar lead:', err);
-      showToast(err.response?.status === 403 ? 'Sem permissão para deletar.' : err.response?.data?.message || 'Erro ao deletar', 'error');
+      showToast(
+        err.response?.status === 403 ? 'Sem permissão para deletar.' : err.response?.data?.message || 'Erro ao deletar',
+        'error'
+      );
     } finally {
       setDeletingId(null);
     }
@@ -102,8 +107,8 @@ export default function CorretorLeads() {
     const term = searchTerm.toLowerCase();
     return leads.filter(lead => {
       const matchSearch =
-        (lead.nome || '').toLowerCase().includes(term) ||
-        (lead.email || '').toLowerCase().includes(term) ||
+        (lead.nome     || '').toLowerCase().includes(term) ||
+        (lead.email    || '').toLowerCase().includes(term) ||
         (lead.telefone || '').toLowerCase().includes(term) ||
         (lead.mensagem || '').toLowerCase().includes(term);
       return matchSearch && (filtroStatus === 'TODOS' || lead.status === filtroStatus);
@@ -196,7 +201,6 @@ export default function CorretorLeads() {
       ) : (
         <>
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            {/* Cabeçalho da tabela */}
             <div className="hidden md:grid grid-cols-12 gap-2 px-5 py-3 bg-gray-50 border-b border-gray-100">
               {['Cliente','Contato','Imóvel','Status','Data',''].map((h, i) => (
                 <div key={i} className={`text-[11px] font-bold text-gray-400 uppercase tracking-wider ${
@@ -211,7 +215,6 @@ export default function CorretorLeads() {
                 <div key={lead.id}
                   className={`grid grid-cols-1 md:grid-cols-12 gap-2 px-5 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50/30' : ''}`}>
 
-                  {/* Cliente */}
                   <div className="md:col-span-3 flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                       <User size={14} className="text-blue-500" />
@@ -219,7 +222,6 @@ export default function CorretorLeads() {
                     <p className="font-semibold text-gray-800 text-sm">{lead.nome || '—'}</p>
                   </div>
 
-                  {/* Contato */}
                   <div className="md:col-span-2 flex flex-col justify-center gap-0.5">
                     {lead.email && (
                       <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -233,25 +235,21 @@ export default function CorretorLeads() {
                     )}
                   </div>
 
-                  {/* Imóvel */}
                   <div className="md:col-span-3 flex items-center gap-1.5">
                     <Building2 size={13} className="text-gray-300 flex-shrink-0" />
                     <span className="text-sm text-gray-500 truncate">{lead.imovel?.titulo || '—'}</span>
                   </div>
 
-                  {/* Status */}
                   <div className="md:col-span-2 flex items-center">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${si.color}`}>{si.label}</span>
                   </div>
 
-                  {/* Data */}
                   <div className="md:col-span-1 flex items-center">
                     <span className="text-xs text-gray-400">
                       {lead.dataCriacao ? new Date(lead.dataCriacao).toLocaleDateString('pt-BR') : '—'}
                     </span>
                   </div>
 
-                  {/* Ações */}
                   <div className="md:col-span-1 flex items-center justify-end gap-1">
                     <button type="button" title="Visualizar" onClick={() => setViewLead(lead)}
                       className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-xl transition-colors"><Eye size={15} /></button>
@@ -272,8 +270,8 @@ export default function CorretorLeads() {
       )}
 
       {/* MODAIS */}
-      {viewLead   && <VisualizarLeadModal lead={viewLead} onClose={() => setViewLead(null)} />}
-      {editLead   && (
+      {viewLead && <VisualizarLeadModal lead={viewLead} onClose={() => setViewLead(null)} />}
+      {editLead && (
         <EditarLeadModal
           lead={editLead}
           onClose={() => setEditLead(null)}
@@ -321,7 +319,6 @@ function VisualizarLeadModal({ lead, onClose }) {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden" onMouseDown={e => e.stopPropagation()}>
 
-        {/* Header colorido */}
         <div className="bg-gray-900 px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -340,7 +337,6 @@ function VisualizarLeadModal({ lead, onClose }) {
         </div>
 
         <div className="p-6 space-y-4">
-          {/* Contato */}
           <div>
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Contato</p>
             <div className="space-y-2">
@@ -423,12 +419,17 @@ function EditarLeadModal({ lead, onClose, onSuccess, onError }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); setError('');
+    e.preventDefault();
+    setError('');
     try {
       setSaving(true);
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Sem token. Faça login novamente.');
-      const payload = { nome: form.nome, email: form.email, telefone: form.telefone, mensagem: form.mensagem || '', bairroInteresse: form.bairroInteresse || '', status: form.status, origem: form.origem || 'SITE' };
+      const payload = {
+        nome: form.nome, email: form.email, telefone: form.telefone,
+        mensagem: form.mensagem || '', bairroInteresse: form.bairroInteresse || '',
+        status: form.status, origem: form.origem || 'SITE',
+      };
       await axios.put(`${API}/api/leads/${lead.id}`, payload, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
@@ -436,8 +437,11 @@ function EditarLeadModal({ lead, onClose, onSuccess, onError }) {
     } catch (err) {
       logAxiosError('❌ Erro ao editar lead:', err);
       const msg = err.response?.data?.message || err.message || 'Erro ao editar';
-      setError(msg); onError?.(msg);
-    } finally { setSaving(false); }
+      setError(msg);
+      onError?.(msg);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -457,7 +461,6 @@ function EditarLeadModal({ lead, onClose, onSuccess, onError }) {
         <div className="p-6">
           {error && <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-600 border border-red-100 text-sm">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
-
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Status *</label>
               <select name="status" value={form.status} onChange={onChange} className={inputCls} disabled={saving}>

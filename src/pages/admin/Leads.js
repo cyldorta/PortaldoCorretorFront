@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Search, Eye, Trash2, Filter, X } from 'lucide-react';
 import Toast from '../../components/common/Toast';
 
+const API_BASE_URL = 'https://fixed-mari-dev-master-0c3ca107.koyeb.app';
+
 function Leads() {
   const [leads, setLeads] = useState([]);
   const [corretores, setCorretores] = useState([]);
@@ -21,17 +23,12 @@ function Leads() {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` }
-      };
+      const config = { headers: { Authorization: `Bearer ${token}` } };
 
       const [leadsRes, corretoresRes] = await Promise.all([
-        axios.get('http://localhost:8080/api/admin/leads', config),
-        axios.get('http://localhost:8080/api/admin/corretores', config),
+        axios.get(`${API_BASE_URL}/api/admin/leads`, config),
+        axios.get(`${API_BASE_URL}/api/admin/corretores`, config),
       ]);
-
-      console.log('✅ Leads:', leadsRes.data);
-      console.log('✅ Corretores:', corretoresRes.data);
 
       setLeads(leadsRes.data);
       setCorretores(corretoresRes.data);
@@ -47,16 +44,13 @@ function Leads() {
   };
 
   const handleDelete = async (id, nome) => {
-    if (!window.confirm(`Tem certeza que deseja deletar o lead de ${nome}?`)) {
-      return;
-    }
+    if (!window.confirm(`Tem certeza que deseja deletar o lead de ${nome}?`)) return;
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:8080/api/admin/leads/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/admin/leads/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
       showToast('Lead deletado com sucesso!', 'success');
       fetchData();
     } catch (error) {
@@ -71,28 +65,25 @@ function Leads() {
   };
 
   const filteredLeads = leads.filter(lead => {
-    const matchSearch = 
+    const matchSearch =
       lead.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.telefone?.toLowerCase().includes(searchTerm.toLowerCase());
-
     const matchStatus = statusFilter === 'TODOS' || lead.status === statusFilter;
     const matchCorretor = corretorFilter === 'TODOS' || lead.corretor?.id === parseInt(corretorFilter);
-
     return matchSearch && matchStatus && matchCorretor;
   });
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      NOVO: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Novo' },
-      EM_CONTATO: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Em Contato' },
+      NOVO:        { bg: 'bg-blue-100',   text: 'text-blue-800',   label: 'Novo'        },
+      EM_CONTATO:  { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Em Contato'  },
       INTERESSADO: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Interessado' },
-      VISITOU: { bg: 'bg-indigo-100', text: 'text-indigo-800', label: 'Visitou' },
-      NEGOCIACAO: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Negociação' },
-      CONVERTIDO: { bg: 'bg-green-100', text: 'text-green-800', label: 'Convertido' },
-      PERDIDO: { bg: 'bg-red-100', text: 'text-red-800', label: 'Perdido' },
+      VISITOU:     { bg: 'bg-indigo-100', text: 'text-indigo-800', label: 'Visitou'     },
+      NEGOCIACAO:  { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Negociação'  },
+      CONVERTIDO:  { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Convertido'  },
+      PERDIDO:     { bg: 'bg-red-100',    text: 'text-red-800',    label: 'Perdido'     },
     };
-
     const config = statusConfig[status] || statusConfig.NOVO;
     return (
       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${config.bg} ${config.text}`}>
@@ -133,14 +124,10 @@ function Leads() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Filter className="inline mr-2" size={16} />
-              Filtrar por Status
+              <Filter className="inline mr-2" size={16} />Filtrar por Status
             </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="TODOS">Todos os Status</option>
               <option value="NOVO">Novo</option>
               <option value="EM_CONTATO">Em Contato</option>
@@ -154,19 +141,13 @@ function Leads() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Filter className="inline mr-2" size={16} />
-              Filtrar por Corretor
+              <Filter className="inline mr-2" size={16} />Filtrar por Corretor
             </label>
-            <select
-              value={corretorFilter}
-              onChange={(e) => setCorretorFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
+            <select value={corretorFilter} onChange={(e) => setCorretorFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="TODOS">Todos os Corretores</option>
               {corretores.map(corretor => (
-                <option key={corretor.id} value={corretor.id}>
-                  {corretor.nomeCompleto}
-                </option>
+                <option key={corretor.id} value={corretor.id}>{corretor.nomeCompleto}</option>
               ))}
             </select>
           </div>
@@ -189,9 +170,7 @@ function Leads() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredLeads.length === 0 ? (
-                <tr>
-                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">Nenhum lead encontrado</td>
-                </tr>
+                <tr><td colSpan="7" className="px-6 py-4 text-center text-gray-500">Nenhum lead encontrado</td></tr>
               ) : (
                 filteredLeads.map((lead) => (
                   <tr key={lead.id} className="hover:bg-gray-50">
@@ -210,9 +189,7 @@ function Leads() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(lead.status)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {new Date(lead.dataCriacao).toLocaleDateString('pt-BR')}
-                      </div>
+                      <div className="text-sm text-gray-500">{new Date(lead.dataCriacao).toLocaleDateString('pt-BR')}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
@@ -237,19 +214,12 @@ function Leads() {
       </div>
 
       {showModal && selectedLead && (
-        <LeadModal
-          lead={selectedLead}
-          onClose={() => {
-            setShowModal(false);
-            setSelectedLead(null);
-          }}
-        />
+        <LeadModal lead={selectedLead} onClose={() => { setShowModal(false); setSelectedLead(null); }} />
       )}
     </div>
   );
 }
 
-// Modal SOMENTE VISUALIZAÇÃO (sem edição)
 function LeadModal({ lead, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -257,32 +227,17 @@ function LeadModal({ lead, onClose }) {
       <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-xl">
           <h2 className="text-2xl font-bold text-gray-800">Detalhes do Lead</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X size={24} />
-          </button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={24} /></button>
         </div>
-        
+
         <div className="p-6">
-          {/* Informações do Cliente */}
           <div className="bg-gray-50 rounded-lg p-4 mb-4">
             <h3 className="font-semibold text-gray-800 mb-3">📋 Informações do Cliente</h3>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-sm text-gray-600">Nome</p>
-                <p className="font-medium">{lead.nome}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Email</p>
-                <p className="font-medium">{lead.email}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Telefone</p>
-                <p className="font-medium">{lead.telefone}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Data de Criação</p>
-                <p className="font-medium">{new Date(lead.dataCriacao).toLocaleDateString('pt-BR')}</p>
-              </div>
+              <div><p className="text-sm text-gray-600">Nome</p><p className="font-medium">{lead.nome}</p></div>
+              <div><p className="text-sm text-gray-600">Email</p><p className="font-medium">{lead.email}</p></div>
+              <div><p className="text-sm text-gray-600">Telefone</p><p className="font-medium">{lead.telefone}</p></div>
+              <div><p className="text-sm text-gray-600">Data de Criação</p><p className="font-medium">{new Date(lead.dataCriacao).toLocaleDateString('pt-BR')}</p></div>
             </div>
             {lead.mensagem && (
               <div className="mt-3">
@@ -292,28 +247,21 @@ function LeadModal({ lead, onClose }) {
             )}
           </div>
 
-          {/* Atribuição */}
           <div className="bg-blue-50 rounded-lg p-4 mb-4">
             <h3 className="font-semibold text-gray-800 mb-3">👤 Atribuição</h3>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-sm text-gray-600">Corretor Responsável</p>
-                <p className="font-medium">{lead.corretor?.nomeCompleto || 'Não atribuído'}</p>
-              </div>
+              <div><p className="text-sm text-gray-600">Corretor Responsável</p><p className="font-medium">{lead.corretor?.nomeCompleto || 'Não atribuído'}</p></div>
               <div>
                 <p className="text-sm text-gray-600">Status Atual</p>
                 <span className={`px-2 py-1 inline-flex text-xs font-semibold rounded-full ${
-                  lead.status === 'CONVERTIDO' ? 'bg-green-100 text-green-800' : 
-                  lead.status === 'PERDIDO' ? 'bg-red-100 text-red-800' : 
+                  lead.status === 'CONVERTIDO' ? 'bg-green-100 text-green-800' :
+                  lead.status === 'PERDIDO' ? 'bg-red-100 text-red-800' :
                   'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {lead.status}
-                </span>
+                }`}>{lead.status}</span>
               </div>
             </div>
           </div>
 
-          {/* Interesse */}
           {(lead.imovel || lead.tipoImovelInteresse) && (
             <div className="bg-green-50 rounded-lg p-4">
               <h3 className="font-semibold text-gray-800 mb-3">🏠 Interesse</h3>
@@ -325,16 +273,11 @@ function LeadModal({ lead, onClose }) {
               )}
               {lead.tipoImovelInteresse && (
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="text-sm text-gray-600">Tipo de Imóvel</p>
-                    <p className="font-medium">{lead.tipoImovelInteresse}</p>
-                  </div>
+                  <div><p className="text-sm text-gray-600">Tipo de Imóvel</p><p className="font-medium">{lead.tipoImovelInteresse}</p></div>
                   {lead.faixaPrecoMin && (
                     <div>
                       <p className="text-sm text-gray-600">Faixa de Preço</p>
-                      <p className="font-medium">
-                        R$ {lead.faixaPrecoMin?.toLocaleString('pt-BR')} - R$ {lead.faixaPrecoMax?.toLocaleString('pt-BR')}
-                      </p>
+                      <p className="font-medium">R$ {lead.faixaPrecoMin?.toLocaleString('pt-BR')} - R$ {lead.faixaPrecoMax?.toLocaleString('pt-BR')}</p>
                     </div>
                   )}
                 </div>
@@ -343,10 +286,7 @@ function LeadModal({ lead, onClose }) {
           )}
 
           <div className="flex justify-end pt-4 border-t mt-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
+            <button onClick={onClose} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
               Fechar
             </button>
           </div>

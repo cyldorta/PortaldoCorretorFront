@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Users, Home, MessageSquare, TrendingUp } from 'lucide-react';
 
+const API_BASE_URL = 'https://fixed-mari-dev-master-0c3ca107.koyeb.app';
+
 function Dashboard() {
   const [stats, setStats] = useState({
     totalCorretores: 0,
@@ -19,24 +21,20 @@ function Dashboard() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` }
-      };
+      const config = { headers: { Authorization: `Bearer ${token}` } };
 
       console.log('📡 Buscando estatísticas...');
-      
-      // Buscar dados dos 3 endpoints
+
       const [corretoresRes, imoveisRes, leadsRes] = await Promise.all([
-        axios.get('http://localhost:8080/api/admin/corretores', config),
-        axios.get('http://localhost:8080/api/admin/imoveis', config),
-        axios.get('http://localhost:8080/api/admin/leads', config),
+        axios.get(`${API_BASE_URL}/api/admin/corretores`, config),
+        axios.get(`${API_BASE_URL}/api/admin/imoveis`, config),
+        axios.get(`${API_BASE_URL}/api/admin/leads`, config),
       ]);
 
       console.log('✅ Corretores:', corretoresRes.data);
       console.log('✅ Imóveis:', imoveisRes.data);
       console.log('✅ Leads:', leadsRes.data);
 
-      // Contar leads novos (status === "NOVO")
       const leadsNovos = leadsRes.data.filter(lead => lead.status === 'NOVO').length;
 
       setStats({
@@ -45,7 +43,7 @@ function Dashboard() {
         totalLeads: leadsRes.data.length,
         leadsNovos: leadsNovos,
       });
-      
+
       setLoading(false);
     } catch (error) {
       console.error('❌ Erro ao carregar estatísticas:', error);
@@ -56,30 +54,10 @@ function Dashboard() {
   };
 
   const cards = [
-    {
-      title: 'Total de Corretores',
-      value: stats.totalCorretores,
-      icon: Users,
-      color: 'bg-blue-500',
-    },
-    {
-      title: 'Total de Imóveis',
-      value: stats.totalImoveis,
-      icon: Home,
-      color: 'bg-green-500',
-    },
-    {
-      title: 'Total de Leads',
-      value: stats.totalLeads,
-      icon: MessageSquare,
-      color: 'bg-purple-500',
-    },
-    {
-      title: 'Leads Novos',
-      value: stats.leadsNovos,
-      icon: TrendingUp,
-      color: 'bg-orange-500',
-    },
+    { title: 'Total de Corretores', value: stats.totalCorretores, icon: Users,         color: 'bg-blue-500'   },
+    { title: 'Total de Imóveis',    value: stats.totalImoveis,    icon: Home,          color: 'bg-green-500'  },
+    { title: 'Total de Leads',      value: stats.totalLeads,      icon: MessageSquare, color: 'bg-purple-500' },
+    { title: 'Leads Novos',         value: stats.leadsNovos,      icon: TrendingUp,    color: 'bg-orange-500' },
   ];
 
   if (loading) {
@@ -104,10 +82,7 @@ function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {cards.map((card, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-          >
+          <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{card.title}</p>
@@ -129,7 +104,7 @@ function Dashboard() {
           Aqui você pode gerenciar todos os corretores, imóveis e leads da plataforma.
           Use o menu lateral para navegar entre as diferentes seções.
         </p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
           <div className="p-4 bg-blue-50 rounded-lg">
             <h3 className="font-semibold text-blue-800 mb-2">📊 Estatísticas</h3>

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Search, Plus, Eye, Edit, Trash2, Building2, MapPin, DollarSign, X } from 'lucide-react';
 import Toast from '../../components/common/Toast';
 
-const API = 'http://localhost:8080';
+const API = 'https://fixed-mari-dev-master-0c3ca107.koyeb.app';
 
 function toNumberOrNull(v) {
   if (v === '' || v === null || v === undefined) return null;
@@ -17,30 +17,21 @@ function toIntOrNull(v) {
 }
 
 function buildImovelPayload(form) {
-  // Atenção: no seu backend, descricao é nullable=false, então não pode ir vazia. [file:173]
   const payload = {
     titulo: form.titulo?.trim(),
     descricao: form.descricao?.trim() || 'Sem descrição',
-
-    tipo: form.tipo, // CASA/APARTAMENTO/...
-    // enum do backend: ALTOPADRAO | MEDIO | POPULAR [file:157]
+    tipo: form.tipo,
     padrao: form.padrao || null,
-
     cidade: form.cidade?.trim(),
     bairro: form.bairro?.trim(),
     endereco: form.endereco?.trim() ? form.endereco.trim() : null,
-
     metragem: toNumberOrNull(form.metragem),
     quartos: toIntOrNull(form.quartos),
     banheiros: toIntOrNull(form.banheiros),
     vagas: toIntOrNull(form.vagas),
-
-    // BigDecimal: mandar string numérica costuma ser mais estável
     valor: form.valor === '' ? null : String(form.valor),
-
     ativo: !!form.ativo,
   };
-
   Object.keys(payload).forEach((k) => payload[k] == null && delete payload[k]);
   return payload;
 }
@@ -65,7 +56,6 @@ export default function CorretorImoveis() {
       const token = localStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const response = await axios.get(`${API}/api/imoveis`, config);
-
       setImoveis(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('❌ Erro ao buscar imóveis:', error);
@@ -93,7 +83,6 @@ export default function CorretorImoveis() {
           <h1 className="text-3xl font-bold text-gray-800">Meus Imóveis</h1>
           <p className="text-gray-600 mt-2">Gerencie seus imóveis cadastrados</p>
         </div>
-
         <button
           type="button"
           onClick={() => setShowCreateModal(true)}
@@ -138,16 +127,9 @@ export default function CorretorImoveis() {
               </div>
             ) : (
               filteredImoveis.map((imovel) => (
-                <div
-                  key={imovel.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                >
+                <div key={imovel.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                   {imovel.fotos && imovel.fotos.length > 0 ? (
-                    <img
-                      src={imovel.fotos[0].url}
-                      alt={imovel.titulo}
-                      className="h-48 w-full object-cover"
-                    />
+                    <img src={imovel.fotos[0].url} alt={imovel.titulo} className="h-48 w-full object-cover" />
                   ) : (
                     <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                       <Building2 className="text-white" size={48} />
@@ -156,37 +138,23 @@ export default function CorretorImoveis() {
 
                   <div className="p-4">
                     <h3 className="font-bold text-lg text-gray-800 mb-2">{imovel.titulo}</h3>
-
                     <div className="flex items-center text-gray-600 text-sm mb-3">
                       <MapPin size={16} className="mr-1" />
                       {imovel.bairro}, {imovel.cidade}
                     </div>
-
                     <div className="flex items-center justify-between pt-3 border-t">
                       <div className="flex items-center text-green-600 font-bold">
                         <DollarSign size={18} />
                         <span>R$ {Number(imovel.valor || 0).toLocaleString('pt-BR')}</span>
                       </div>
-
                       <div className="flex items-center gap-2">
-                        <button type="button" className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                          <Eye size={18} />
-                        </button>
-                        <button type="button" className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors">
-                          <Edit size={18} />
-                        </button>
-                        <button type="button" className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                          <Trash2 size={18} />
-                        </button>
+                        <button type="button" className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Eye size={18} /></button>
+                        <button type="button" className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"><Edit size={18} /></button>
+                        <button type="button" className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={18} /></button>
                       </div>
                     </div>
-
                     <div className="mt-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          imovel.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${imovel.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                         {imovel.ativo ? 'Ativo' : 'Inativo'}
                       </span>
                     </div>
@@ -219,21 +187,10 @@ export default function CorretorImoveis() {
 
 function CadastrarImovelModal({ onClose, onSuccess, onError }) {
   const [form, setForm] = useState({
-    titulo: '',
-    descricao: '',
-    tipo: 'CASA',
-    padrao: 'ALTOPADRAO', // ✅ corrigido [file:157]
-    cidade: '',
-    bairro: '',
-    endereco: '',
-    metragem: '',
-    quartos: '',
-    banheiros: '',
-    vagas: '',
-    valor: '',
-    ativo: true,
+    titulo: '', descricao: '', tipo: 'CASA', padrao: 'ALTOPADRAO',
+    cidade: '', bairro: '', endereco: '', metragem: '',
+    quartos: '', banheiros: '', vagas: '', valor: '', ativo: true,
   });
-
   const [fotos, setFotos] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -249,23 +206,18 @@ function CadastrarImovelModal({ onClose, onSuccess, onError }) {
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const onFotosChange = (e) => {
-    setFotos(Array.from(e.target.files || []));
-  };
+  const onFotosChange = (e) => setFotos(Array.from(e.target.files || []));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     try {
       setSaving(true);
-
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Token não encontrado. Faça login novamente.');
 
       const payload = buildImovelPayload(form);
 
-      // 1) Criar imóvel
       const createRes = await axios.post(`${API}/api/imoveis`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -274,11 +226,9 @@ function CadastrarImovelModal({ onClose, onSuccess, onError }) {
       const imovelId = body?.id ?? body?.data ?? body;
       if (!imovelId) throw new Error('Não consegui obter o ID do imóvel criado.');
 
-      // 2) Upload fotos (sem query param principal)
       for (const file of fotos) {
         const fd = new FormData();
         fd.append('file', file);
-
         await axios.post(`${API}/api/imoveis/${imovelId}/fotos`, fd, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -288,7 +238,6 @@ function CadastrarImovelModal({ onClose, onSuccess, onError }) {
     } catch (err) {
       console.error('❌ Erro ao cadastrar imóvel:', err);
       console.error('❌ Resposta:', err.response?.data);
-
       const msg = err.response?.data?.message || err.message || 'Erro ao cadastrar imóvel';
       setError(msg);
       onError?.(msg);
@@ -300,7 +249,6 @@ function CadastrarImovelModal({ onClose, onSuccess, onError }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onMouseDown={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
-
       <div
         className="relative w-full max-w-3xl max-h-[90vh] overflow-auto rounded-2xl border border-white/30 bg-white/70 shadow-2xl backdrop-blur-xl"
         onMouseDown={(e) => e.stopPropagation()}
@@ -316,48 +264,29 @@ function CadastrarImovelModal({ onClose, onSuccess, onError }) {
         </div>
 
         <div className="p-6">
-          {error ? (
-            <div className="mb-4 p-3 rounded bg-red-50 text-red-700 border border-red-200">
-              {error}
-            </div>
-          ) : null}
+          {error && (
+            <div className="mb-4 p-3 rounded bg-red-50 text-red-700 border border-red-200">{error}</div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
-              <input
-                name="titulo"
-                value={form.titulo}
-                onChange={onChange}
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                required
-                disabled={saving}
-              />
+              <input name="titulo" value={form.titulo} onChange={onChange} required disabled={saving}
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Descrição *</label>
-              <textarea
-                name="descricao"
-                value={form.descricao}
-                onChange={onChange}
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                rows={3}
+              <textarea name="descricao" value={form.descricao} onChange={onChange} rows={3} disabled={saving}
                 placeholder="Obrigatório (o backend não aceita vazio)."
-                disabled={saving}
-              />
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
-                <select
-                  name="tipo"
-                  value={form.tipo}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  disabled={saving}
-                >
+                <select name="tipo" value={form.tipo} onChange={onChange} disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80">
                   <option value="CASA">CASA</option>
                   <option value="APARTAMENTO">APARTAMENTO</option>
                   <option value="TERRENO">TERRENO</option>
@@ -365,16 +294,10 @@ function CadastrarImovelModal({ onClose, onSuccess, onError }) {
                   <option value="OUTRO">OUTRO</option>
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Padrão</label>
-                <select
-                  name="padrao"
-                  value={form.padrao}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  disabled={saving}
-                >
+                <select name="padrao" value={form.padrao} onChange={onChange} disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80">
                   <option value="ALTOPADRAO">ALTOPADRAO</option>
                   <option value="MEDIO">MEDIO</option>
                   <option value="POPULAR">POPULAR</option>
@@ -385,121 +308,51 @@ function CadastrarImovelModal({ onClose, onSuccess, onError }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Cidade *</label>
-                <input
-                  name="cidade"
-                  value={form.cidade}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  required
-                  disabled={saving}
-                />
+                <input name="cidade" value={form.cidade} onChange={onChange} required disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Bairro *</label>
-                <input
-                  name="bairro"
-                  value={form.bairro}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  required
-                  disabled={saving}
-                />
+                <input name="bairro" value={form.bairro} onChange={onChange} required disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Valor (R$) *</label>
-                <input
-                  name="valor"
-                  type="number"
-                  value={form.valor}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  required
-                  min="0"
-                  step="0.01"
-                  disabled={saving}
-                />
+                <input name="valor" type="number" value={form.valor} onChange={onChange} required min="0" step="0.01" disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
-              <input
-                name="endereco"
-                value={form.endereco}
-                onChange={onChange}
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                disabled={saving}
-              />
+              <input name="endereco" value={form.endereco} onChange={onChange} disabled={saving}
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Metragem</label>
-                <input
-                  name="metragem"
-                  type="number"
-                  value={form.metragem}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  step="0.01"
-                  disabled={saving}
-                />
+                <input name="metragem" type="number" value={form.metragem} onChange={onChange} step="0.01" disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Quartos</label>
-                <input
-                  name="quartos"
-                  type="number"
-                  value={form.quartos}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  min="0"
-                  disabled={saving}
-                />
+                <input name="quartos" type="number" value={form.quartos} onChange={onChange} min="0" disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Banheiros</label>
-                <input
-                  name="banheiros"
-                  type="number"
-                  value={form.banheiros}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  min="0"
-                  disabled={saving}
-                />
+                <input name="banheiros" type="number" value={form.banheiros} onChange={onChange} min="0" disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vagas</label>
-                <input
-                  name="vagas"
-                  type="number"
-                  value={form.vagas}
-                  onChange={onChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80"
-                  min="0"
-                  disabled={saving}
-                />
+                <input name="vagas" type="number" value={form.vagas} onChange={onChange} min="0" disabled={saving}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white/80" />
               </div>
-
               <div className="flex items-end gap-2">
-                <input
-                  id="ativo"
-                  name="ativo"
-                  type="checkbox"
-                  checked={form.ativo}
-                  onChange={onChange}
-                  className="h-4 w-4"
-                  disabled={saving}
-                />
-                <label htmlFor="ativo" className="text-sm text-gray-700">
-                  Ativo
-                </label>
+                <input id="ativo" name="ativo" type="checkbox" checked={form.ativo} onChange={onChange} className="h-4 w-4" disabled={saving} />
+                <label htmlFor="ativo" className="text-sm text-gray-700">Ativo</label>
               </div>
             </div>
 
@@ -512,28 +365,16 @@ function CadastrarImovelModal({ onClose, onSuccess, onError }) {
             </div>
 
             <div className="flex items-center gap-3 pt-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-              >
+              <button type="submit" disabled={saving}
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60">
                 {saving ? 'Salvando...' : 'Salvar'}
               </button>
-
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 rounded border border-gray-300 bg-white/70 hover:bg-white"
-                disabled={saving}
-              >
+              <button type="button" onClick={onClose} disabled={saving}
+                className="px-4 py-2 rounded border border-gray-300 bg-white/70 hover:bg-white">
                 Cancelar
               </button>
             </div>
           </form>
-
-          <div className="mt-3 text-xs text-gray-600">
-            Se ainda aparecer 500 no create, o log do Spring precisa mostrar a exception completa (stacktrace). No seu print ele parou antes. [file:179]
-          </div>
         </div>
       </div>
     </div>

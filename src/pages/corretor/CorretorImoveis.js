@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import Toast from '../../components/common/Toast';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API = 'https://fixed-mari-dev-master-0c3ca107.koyeb.app';
 
 function toNumberOrNull(v) {
   if (v === '' || v === null || v === undefined) return null;

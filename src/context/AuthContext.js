@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-import API_BASE_URL from '../services/api';
+
+const API_BASE_URL = 'https://fixed-mari-dev-master-0c3ca107.koyeb.app';
 
 const AuthContext = createContext();
 

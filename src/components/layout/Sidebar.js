@@ -3,42 +3,57 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, Home, MessageSquare, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-function Sidebar({ collapsed }) {
-  const location = useLocation();
+function Sidebar({ collapsed, onClose }) {
+  const location  = useLocation();
   const { logout } = useAuth();
 
   const menuItems = [
-    { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Painel' },
-    { path: '/admin/corretores', icon: Users, label: 'Corretores' },
-    { path: '/admin/imoveis', icon: Home, label: 'Imoveis' },
-    { path: '/admin/leads', icon: MessageSquare, label: 'Leads' },
+    { path: '/admin/dashboard',  icon: LayoutDashboard, label: 'Painel'     },
+    { path: '/admin/corretores', icon: Users,           label: 'Corretores' },
+    { path: '/admin/imoveis',    icon: Home,            label: 'Imóveis'    },
+    { path: '/admin/leads',      icon: MessageSquare,   label: 'Leads'      },
   ];
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div
-      className={`
-        relative flex flex-col bg-[#111111] text-white h-screen flex-shrink-0
-        transition-all duration-300 ease-in-out
-        ${collapsed ? 'w-[68px]' : 'w-56'}
-      `}
-    >
+    <div className={`
+      relative flex flex-col bg-[#111111] text-white h-screen flex-shrink-0
+      transition-all duration-300 ease-in-out
+      ${collapsed ? 'w-[68px]' : 'w-56 sm:w-60 lg:w-56'}
+    `}>
+
       {/* Logo */}
-      <div className={`flex items-center border-b border-white/[0.06] h-[57px] transition-all duration-300 ${collapsed ? 'justify-center px-4' : 'px-5'}`}>
+      <div className={`
+        flex items-center border-b border-white/[0.06] h-[57px]
+        transition-all duration-300
+        ${collapsed ? 'justify-center px-4' : 'px-5'}
+      `}>
         {collapsed ? (
           <span className="text-white font-black text-xl">M</span>
         ) : (
-          <img src="/logoMOVV.png" alt="MOVV" className="h-8 object-contain" />
+          <div className="flex items-center justify-between w-full">
+            <img src="/logoMOVV.png" alt="MOVV" className="h-8 object-contain" />
+            {/* Botão fechar — só mobile */}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="lg:hidden p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 px-2 space-y-1">
+      <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
         {menuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
+            onClick={onClose}
             title={collapsed ? item.label : undefined}
             className={`
               relative flex items-center gap-3 py-3 rounded-xl transition-all duration-200 group
@@ -54,11 +69,14 @@ function Sidebar({ collapsed }) {
 
             <item.icon size={20} className="flex-shrink-0" />
 
-            <span className={`text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+            <span className={`
+              text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300
+              ${collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}
+            `}>
               {item.label}
             </span>
 
-            {/* Tooltip */}
+            {/* Tooltip — só desktop collapsed */}
             {collapsed && (
               <span className="absolute left-full ml-3 px-2 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                 {item.label}
@@ -72,6 +90,7 @@ function Sidebar({ collapsed }) {
       <div className="p-2 border-t border-white/[0.06]">
         <button
           onClick={logout}
+          title={collapsed ? 'Sair' : undefined}
           className={`
             flex items-center gap-3 py-3 rounded-xl w-full
             text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200
@@ -79,7 +98,10 @@ function Sidebar({ collapsed }) {
           `}
         >
           <LogOut size={20} className="flex-shrink-0" />
-          <span className={`text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+          <span className={`
+            text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300
+            ${collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}
+          `}>
             Sair
           </span>
         </button>

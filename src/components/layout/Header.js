@@ -7,19 +7,30 @@ function Header({ toggleSidebar, sidebarCollapsed }) {
 
   return (
     <header className="bg-white/70 backdrop-blur-xl border-b border-black/[0.06] shadow-sm sticky top-0 z-10">
-      <div className="flex items-center justify-between px-5 py-3">
+      <div className="flex items-center justify-between px-3 sm:px-5 py-3">
 
         {/* Esquerda */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Botão menu mobile */}
           <button
             onClick={toggleSidebar}
-            className="lg:hidden p-2 rounded-xl hover:bg-black/[0.06] transition-colors text-gray-500"
+            className="lg:hidden p-2 rounded-xl hover:bg-black/[0.06] transition-colors text-gray-500 flex-shrink-0"
           >
             <Menu size={20} />
           </button>
 
-          {/* Logo aparece no header quando sidebar recolhida */}
-          <div className={`hidden lg:flex items-center gap-3 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'max-w-[120px] opacity-100' : 'max-w-0 opacity-0 pointer-events-none'}`}>
+          {/* Logo mobile (centro-esquerda) */}
+          <img
+            src="/logoMOVV.png"
+            alt="MOVV"
+            className="h-7 object-contain lg:hidden"
+          />
+
+          {/* Logo desktop quando sidebar recolhida */}
+          <div className={`
+            hidden lg:flex items-center gap-3 overflow-hidden transition-all duration-300
+            ${sidebarCollapsed ? 'max-w-[120px] opacity-100' : 'max-w-0 opacity-0 pointer-events-none'}
+          `}>
             <img src="/logoMOVV.png" alt="MOVV" className="h-7 object-contain flex-shrink-0" />
             <div className="w-px h-5 bg-gray-200 flex-shrink-0" />
           </div>
@@ -30,9 +41,9 @@ function Header({ toggleSidebar, sidebarCollapsed }) {
         </div>
 
         {/* Direita */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="hidden sm:block text-right">
-            <p className="text-sm font-semibold text-gray-800 leading-tight">
+            <p className="text-sm font-semibold text-gray-800 leading-tight truncate max-w-[140px] lg:max-w-[200px]">
               {user?.username || 'Administrador'}
             </p>
             <p className="text-xs text-gray-400">{user?.role || 'ADMIN'}</p>

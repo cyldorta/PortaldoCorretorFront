@@ -9,9 +9,9 @@ function AdminLayout({ children }) {
   return (
     <div className="flex h-screen bg-[#F5F5F7]">
 
-      {/* Sidebar desktop — hover controlado aqui */}
+      {/* Sidebar desktop — hover expand */}
       <div
-        className="hidden lg:block"
+        className="hidden lg:block flex-shrink-0"
         onMouseEnter={() => setSidebarCollapsed(false)}
         onMouseLeave={() => setSidebarCollapsed(true)}
       >
@@ -37,8 +37,11 @@ function AdminLayout({ children }) {
           toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           sidebarCollapsed={sidebarCollapsed}
         />
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
+        {/* p-3 no mobile, p-6 no desktop, p-10 em telas grandes (TV) */}
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 xl:p-8 2xl:p-10">
+          <div className="max-w-screen-2xl mx-auto w-full">
+            {children}
+          </div>
         </main>
       </div>
 
